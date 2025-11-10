@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>NETFRAMEWORK</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Microservice.Domain</AssemblyName>
+  </PropertyGroup>
+
+</Project>
