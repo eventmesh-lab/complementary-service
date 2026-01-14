@@ -8,9 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\complementary_service.Application\complementary_service.Application.csproj" />
-    <ProjectReference Include="..\complementary_service.Domain\complementary_service.Domain.csproj" />
-    <ProjectReference Include="..\complementary_service.Infrastructure\complementary_service.Infrastructure.csproj" />
+    <ProjectReference Include="..\complementary-service.Application\complementary-service.Application.csproj" />
+    <ProjectReference Include="..\complementary-service.Domain\complementary-service.Domain.csproj" />
+    <ProjectReference Include="..\complementary-service.Infrastructure\complementary-service.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

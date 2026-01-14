@@ -1,6 +1,7 @@
 using System;
 using ComplementaryServices.Domain.ValueObjects;
 using ComplementaryServices.Domain.Events;
+using ComplementaryServices.Domain.Common;
 
 namespace ComplementaryServices.Domain.Entities
 {

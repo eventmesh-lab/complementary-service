@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using complementary_service.Application.UseCases;
-using complementary_service.Domain.Ports;
-using complementary_service.Infrastructure.Repositories;
+using ComplementaryServices.Application.Services;
+using ComplementaryServices.Domain.Repositories;
+using MediatR;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,10 +13,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// MediatR para eventos de dominio
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(IComplementaryServiceAppService).Assembly));
+
+// Application Services
+builder.Services.AddScoped<IComplementaryServiceAppService, ComplementaryServiceAppService>();
+
 // Registrations (composition root)
-// Reemplazar por registros reales (EF, HttpClient, Messaging, etc.)
-builder.Services.AddScoped<IExampleRepository, InMemoryExampleRepository>();
-builder.Services.AddScoped<CreateExampleUseCase>();
+// Aquí irían las implementaciones de Infrastructure (EF Core, etc.)
+// builder.Services.AddScoped<IComplementaryServiceRepository, ComplementaryServiceRepository>();
+// builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 
 var app = builder.Build();
 
