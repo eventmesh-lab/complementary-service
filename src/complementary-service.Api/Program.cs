@@ -2,7 +2,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ComplementaryServices.Application.Services;
+using ComplementaryServices.Application.Messaging.RabbitMQ;
 using ComplementaryServices.Domain.Repositories;
+using ComplementaryServices.Infrastructure.Messaging.RabbitMQ;
+using ComplementaryServices.Infrastructure.Persistence;
 using MediatR;
 using System.Reflection;
 
@@ -13,16 +16,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// RabbitMQ Configuration
+builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
+builder.Services.AddSingleton<IServiceRequestPublisher, ServiceRequestPublisher>();
+builder.Services.AddHostedService<ServiceResponseConsumer>();
+
 // MediatR para eventos de dominio
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(IComplementaryServiceAppService).Assembly));
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(IComplementaryServiceAppService).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(ServiceRequestPublisher).Assembly);
+});
 
 // Application Services
 builder.Services.AddScoped<IComplementaryServiceAppService, ComplementaryServiceAppService>();
 
 // Registrations (composition root)
-// Aquí irían las implementaciones de Infrastructure (EF Core, etc.)
-// builder.Services.AddScoped<IComplementaryServiceRepository, ComplementaryServiceRepository>();
-// builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddSingleton<IComplementaryServiceRepository, ComplementaryServiceRepository>();
+builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
 
 var app = builder.Build();
 
