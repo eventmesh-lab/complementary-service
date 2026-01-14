@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using ComplementaryServices.Domain.Common;
 
 namespace ComplementaryServices.Domain.ValueObjects
 {

@@ -1,6 +1,7 @@
-/ Domain/Events/ServiceCancelledDomainEvent.cs
+// Domain/Events/ServiceCancelledDomainEvent.cs
 using System;
 using ComplementaryServices.Domain.ValueObjects;
+using ComplementaryServices.Domain.Common;
 
 namespace ComplementaryServices.Domain.Events
 {

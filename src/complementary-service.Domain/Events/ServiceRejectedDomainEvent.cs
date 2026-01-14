@@ -1,33 +1,31 @@
-// Domain/Events/ServiceRequestedDomainEvent.cs
+// Domain/Events/ServiceRejectedDomainEvent.cs
 using System;
 using ComplementaryServices.Domain.ValueObjects;
+using ComplementaryServices.Domain.Common;
 
 namespace ComplementaryServices.Domain.Events
 {
-    public class ServiceRequestedDomainEvent : IDomainEvent
+    public class ServiceRejectedDomainEvent : IDomainEvent
     {
         public Guid ServiceId { get; }
         public Guid ReservationId { get; }
         public Guid UserId { get; }
-        public Guid EventId { get; }
         public ServiceType ServiceType { get; }
-        public string Details { get; }
+        public string RejectionReason { get; }
         public DateTime OccurredOn { get; }
 
-        public ServiceRequestedDomainEvent(
+        public ServiceRejectedDomainEvent(
             Guid serviceId,
             Guid reservationId,
             Guid userId,
-            Guid eventId,
             ServiceType serviceType,
-            string details)
+            string rejectionReason)
         {
             ServiceId = serviceId;
             ReservationId = reservationId;
             UserId = userId;
-            EventId = eventId;
             ServiceType = serviceType;
-            Details = details;
+            RejectionReason = rejectionReason;
             OccurredOn = DateTime.UtcNow;
         }
     }
