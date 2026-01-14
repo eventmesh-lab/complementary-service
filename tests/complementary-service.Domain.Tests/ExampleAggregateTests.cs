@@ -1,8 +1,8 @@
 using System;
 using Xunit;
-using Microservice.Domain.Entities;
+using complementary_service.Domain.Entities;
 
-namespace Microservice.Domain.Tests
+namespace complementary_service.Domain.Tests
 {
     public class ExampleAggregateTests
     {

@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using Xunit;
-using Microservice.Infrastructure.Repositories;
-using Microservice.Domain.Entities;
+using complementary_service.Infrastructure.Repositories;
+using complementary_service.Domain.Entities;
 
-namespace Microservice.Infrastructure.IntegrationTests
+namespace complementary_service.Infrastructure.IntegrationTests
 {
     public class InMemoryRepoTests
     {

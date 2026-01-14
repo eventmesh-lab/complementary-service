@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>NETFRAMEWORK</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -11,12 +11,11 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.3" />
-    <PackageReference Include="Moq" Version="4.18.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microservice.Application\Microservice.Application.csproj" />
-    <ProjectReference Include="..\..\src\Microservice.Domain\Microservice.Domain.csproj" />
+    <ProjectReference Include="..\..\src\complementary_service.Infrastructure\complementary_service.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\complementary_service.Domain\complementary_service.Domain.csproj" />
   </ItemGroup>
 
 </Project>

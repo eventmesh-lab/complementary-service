@@ -1,10 +1,10 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Microservice.Domain.Entities;
-using Microservice.Domain.Ports;
+using complementary_service.Domain.Entities;
+using complementary_service.Domain.Ports;
 using System;
 
-namespace Microservice.Application.UseCases
+namespace complementary_service.Application.UseCases
 {
     public class CreateExampleRequest
     {

@@ -1,18 +1,18 @@
-# Plantilla Microservice Hexagonal (dotnet)
+# Plantilla complementary_service Hexagonal (dotnet)
 
 Plantilla para generar un microservicio con arquitectura Hexagonal (Ports & Adapters) en .NET.
 
 Estructura creada:
 
 - src/
-  - Microservice.Domain/
-  - Microservice.Application/
-  - Microservice.Infrastructure/
-  - Microservice.Api/
+  - complementary_service.Domain/
+  - complementary_service.Application/
+  - complementary_service.Infrastructure/
+  - complementary_service.Api/
 - tests/
-  - Microservice.Domain.Tests/
-  - Microservice.Application.Tests/
-  - Microservice.Infrastructure.IntegrationTests/
+  - complementary_service.Domain.Tests/
+  - complementary_service.Application.Tests/
+  - complementary_service.Infrastructure.IntegrationTests/
 - .template.config/template.json
 
 Cómo usar este repositorio como template
@@ -27,8 +27,8 @@ Hay dos formas comunes de usar este repo como plantilla:
    - Clona este repositorio y luego instala la plantilla desde la carpeta del repo:
 
 ```bash
-git clone https://github.com/<owner>/microservice-hexagonal-template-.git
-cd microservice-hexagonal-template-
+git clone https://github.com/<owner>/complementary_service-hexagonal-template-.git
+cd complementary_service-hexagonal-template-
 # Instalar la plantilla localmente (SDK moderno):
 dotnet new install .
 # Si ya la tienes instalada y quieres forzar la actualización:
@@ -45,7 +45,7 @@ Generar un nuevo microservicio desde la plantilla
 
 ```bash
 # Crea el microservicio (reemplaza "Orders" por el nombre que desees):
-dotnet new microservice-hex -n Orders -o ./Orders --framework net8.0
+dotnet new complementary_service-hex -n Orders -o ./Orders --framework net8.0
 
 cd Orders
 dotnet restore
@@ -53,21 +53,21 @@ dotnet build
 ```
 
 Notas importantes
-- El template usa `Microservice` como `sourceName`; al generar el proyecto ese token se sustituye por el nombre que pases con `-n`.
-- Los .csproj contienen el token `NETFRAMEWORK` que se sustituye por el valor del parámetro `--framework` (por defecto `net8.0`).
+- El template usa `complementary_service` como `sourceName`; al generar el proyecto ese token se sustituye por el nombre que pases con `-n`.
+- Los .csproj contienen el token `net8.0` que se sustituye por el valor del parámetro `--framework` (por defecto `net8.0`).
 - Si la plantilla está instalada globalmente y haces cambios locales, reinstálala con `--force`.
 
 Desinstalar la plantilla (opcional)
 
 ```bash
 # Si la instalaste desde una carpeta local, puedes desinstalar usando la misma ruta o el identificador usado al instalar.
-dotnet new uninstall /path/to/microservice-hexagonal-template-
+dotnet new uninstall /path/to/complementary_service-hexagonal-template-
 # (o) desinstalar por paquete si lo subiste a un feed: dotnet new uninstall <package-or-feed>
 ```
 
 Problemas comunes
 - Si ves errores al compilar la API relacionados con Swagger, asegúrate de restaurar paquetes; la plantilla incluye `Swashbuckle.AspNetCore` por defecto.
-- Si el comando `dotnet new microservice-hex` no aparece tras instalar, ejecuta `dotnet new install . --force` y verifica con `dotnet new list`.
+- Si el comando `dotnet new complementary_service-hex` no aparece tras instalar, ejecuta `dotnet new install . --force` y verifica con `dotnet new list`.
 
 ¿Qué sigue?
 - Puedes solicitar que añada un `.sln` a la plantilla, workflows de CI (GitHub Actions) que verifiquen la generación y build, o parámetros adicionales para incluir EF Core / mensajería a la carta.

@@ -1,9 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microservice.Domain.Entities;
+using complementary_service.Domain.Entities;
 
-namespace Microservice.Domain.Ports
+namespace complementary_service.Domain.Ports
 {
     public interface IExampleRepository
     {

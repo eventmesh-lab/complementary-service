@@ -2,10 +2,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using Microservice.Domain.Entities;
-using Microservice.Domain.Ports;
+using complementary_service.Domain.Entities;
+using complementary_service.Domain.Ports;
 
-namespace Microservice.Infrastructure.Repositories
+namespace complementary_service.Infrastructure.Repositories
 {
     public class InMemoryExampleRepository : IExampleRepository
     {

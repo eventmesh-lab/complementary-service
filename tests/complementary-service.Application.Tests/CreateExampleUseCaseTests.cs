@@ -1,12 +1,12 @@
 using System.Threading.Tasks;
 using Xunit;
 using Moq;
-using Microservice.Domain.Ports;
-using Microservice.Application.UseCases;
-using Microservice.Domain.Entities;
+using complementary_service.Domain.Ports;
+using complementary_service.Application.UseCases;
+using complementary_service.Domain.Entities;
 using System.Threading;
 
-namespace Microservice.Application.Tests
+namespace complementary_service.Application.Tests
 {
     public class CreateExampleUseCaseTests
     {

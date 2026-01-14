@@ -1,6 +1,6 @@
 using System;
 
-namespace Microservice.Domain.Entities
+namespace complementary_service.Domain.Entities
 {
     public class ExampleAggregate
     {

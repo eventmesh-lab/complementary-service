@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>NETFRAMEWORK</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -14,8 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microservice.Infrastructure\Microservice.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\Microservice.Domain\Microservice.Domain.csproj" />
+    <ProjectReference Include="..\..\src\complementary_service.Domain\complementary_service.Domain.csproj" />
   </ItemGroup>
 
 </Project>
