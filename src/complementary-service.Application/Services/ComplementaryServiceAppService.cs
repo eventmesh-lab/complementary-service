@@ -15,10 +15,14 @@ namespace ComplementaryServices.Application.Services
 {
     public interface IComplementaryServiceAppService
     {
-        Task<Guid> RequestServiceAsync(ServiceRequestDto request, Guid userId, Guid eventId, CancellationToken cancellationToken = default);
+        Task<Guid> RequestServiceAsync(ServiceRequestDto request, Guid userId, CancellationToken cancellationToken = default);
         Task<bool> ConfirmServiceAsync(Guid serviceId, string providerId, decimal price, string message, DateTime? estimatedTime = null, CancellationToken cancellationToken = default);
         Task<bool> RejectServiceAsync(Guid serviceId, string reason, CancellationToken cancellationToken = default);
         Task<List<ServiceStatusDto>> GetUserServicesAsync(Guid userId, Guid? reservationId = null, CancellationToken cancellationToken = default);
+        Task<ServiceStatusDto> GetServiceByIdAsync(Guid serviceId, Guid userId, CancellationToken cancellationToken = default);
+        Task<bool> CancelServiceAsync(Guid serviceId, Guid userId, CancellationToken cancellationToken = default);
+        Task<List<ServiceStatusDto>> GetServicesByEventAsync(Guid eventId, CancellationToken cancellationToken = default);
+        Task<ServiceMetricsDto> GetMetricsAsync(CancellationToken cancellationToken = default);
     }
 
     public class ComplementaryServiceAppService : IComplementaryServiceAppService
@@ -40,7 +44,7 @@ namespace ComplementaryServices.Application.Services
             _mediator = mediator;
         }
 
-        public async Task<Guid> RequestServiceAsync(ServiceRequestDto request, Guid userId, Guid eventId, CancellationToken cancellationToken = default)
+        public async Task<Guid> RequestServiceAsync(ServiceRequestDto request, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -65,7 +69,7 @@ namespace ComplementaryServices.Application.Services
                 var service = new ComplementaryService(
                     request.ReservationId,
                     userId,
-                    eventId,
+                    request.EventId,
                     serviceType,
                     request.Details);
 
@@ -165,7 +169,58 @@ namespace ComplementaryServices.Application.Services
                 services = services.Where(s => s.ReservationId == reservationId.Value).ToList();
             }
 
-            return services.Select(s => new ServiceStatusDto
+            return services.Select(MapToDto).ToList();
+        }
+
+        public async Task<ServiceStatusDto> GetServiceByIdAsync(Guid serviceId, Guid userId, CancellationToken cancellationToken = default)
+        {
+            var service = await _repository.GetByIdAsync(serviceId, cancellationToken);
+            if (service == null) throw new ServiceNotFoundException(serviceId);
+            if (service.UserId != userId) throw new UnauthorizedAccessException();
+
+            return MapToDto(service);
+        }
+
+        public async Task<bool> CancelServiceAsync(Guid serviceId, Guid userId, CancellationToken cancellationToken = default)
+        {
+            var service = await _repository.GetByIdAsync(serviceId, cancellationToken);
+            if (service == null) throw new ServiceNotFoundException(serviceId);
+            if (service.UserId != userId) throw new UnauthorizedAccessException();
+
+            service.Cancel();
+            await _repository.UpdateAsync(service, cancellationToken);
+            await _repository.UnitOfWork.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Service {ServiceId} cancelled by user {UserId}", serviceId, userId);
+            await PublishDomainEventsAsync(service, cancellationToken);
+            return true;
+        }
+
+        public async Task<List<ServiceStatusDto>> GetServicesByEventAsync(Guid eventId, CancellationToken cancellationToken = default)
+        {
+            var services = await _repository.GetByEventIdAsync(eventId, cancellationToken);
+            return services.Select(MapToDto).ToList();
+        }
+
+        public async Task<ServiceMetricsDto> GetMetricsAsync(CancellationToken cancellationToken = default)
+        {
+            // Nota: En una app real esto sería una query SQL optimizada o un ReadModel
+            var allServices = await _repository.GetAllAsync(cancellationToken); 
+            
+            return new ServiceMetricsDto
+            {
+                TotalRequests = allServices.Count,
+                Confirmed = allServices.Count(s => s.Status == ServiceStatus.Confirmed),
+                Rejected = allServices.Count(s => s.Status == ServiceStatus.Rejected),
+                Pending = allServices.Count(s => s.Status == ServiceStatus.Pending || s.Status == ServiceStatus.Requested),
+                AveragePrice = allServices.Any(s => s.Price > 0) ? allServices.Where(s => s.Price > 0).Average(s => s.Price) : 0,
+                ByServiceType = allServices.GroupBy(s => s.ServiceType.Value).ToDictionary(g => g.Key, g => g.Count())
+            };
+        }
+
+        private ServiceStatusDto MapToDto(ComplementaryService s)
+        {
+            return new ServiceStatusDto
             {
                 ServiceId = s.Id,
                 ReservationId = s.ReservationId,
@@ -178,7 +233,7 @@ namespace ComplementaryServices.Application.Services
                 RejectedAt = s.RejectedAt,
                 RejectionReason = s.RejectionReason,
                 Details = s.Details
-            }).ToList();
+            };
         }
 
         private async Task PublishDomainEventsAsync(ComplementaryService service, CancellationToken cancellationToken)

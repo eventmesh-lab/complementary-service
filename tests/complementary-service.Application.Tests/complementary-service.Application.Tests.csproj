@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\complementary_service.Application\complementary_service.Application.csproj" />
-    <ProjectReference Include="..\..\src\complementary_service.Domain\complementary_service.Domain.csproj" />
+    <ProjectReference Include="..\..\src\complementary-service.Application\complementary-service.Application.csproj" />
+    <ProjectReference Include="..\..\src\complementary-service.Domain\complementary-service.Domain.csproj" />
   </ItemGroup>
 
 </Project>

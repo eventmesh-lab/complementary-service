@@ -50,6 +50,13 @@ namespace ComplementaryServices.Infrastructure.Persistence
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<List<ComplementaryService>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.ComplementaryServices
+                .OrderByDescending(s => s.RequestedAt)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task AddAsync(ComplementaryService service, CancellationToken cancellationToken = default)
         {
             await _context.ComplementaryServices.AddAsync(service, cancellationToken);
