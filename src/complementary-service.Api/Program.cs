@@ -6,6 +6,9 @@ using ComplementaryServices.Application.Messaging.RabbitMQ;
 using ComplementaryServices.Domain.Repositories;
 using ComplementaryServices.Infrastructure.Messaging.RabbitMQ;
 using ComplementaryServices.Infrastructure.Persistence;
+using ComplementaryServices.Infrastructure.Notifications;
+using ComplementaryServices.Application.Notifications;
+using Microsoft.AspNetCore.SignalR;
 using MediatR;
 using System.Reflection;
 
@@ -20,6 +23,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
 builder.Services.AddSingleton<IServiceRequestPublisher, ServiceRequestPublisher>();
 builder.Services.AddHostedService<ServiceResponseConsumer>();
+
+// SignalR Configuration
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
+builder.Services.AddScoped<IServiceNotifier, SignalRServiceNotifier>();
 
 // MediatR para eventos de dominio
 builder.Services.AddMediatR(cfg => {
@@ -44,5 +52,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+app.MapHub<ServiceNotificationHub>("/hubs/serviceNotifications");
 
 app.Run();
