@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks();
 
 // Database
 builder.Services.AddDbContext<ComplementaryServiceDbContext>(options =>
@@ -73,6 +74,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 // SignalR Hub
 app.MapHub<ServiceNotificationHub>("/hubs/service-notifications");

@@ -1,0 +1,12 @@
+{
+  "realm": "eventplatform",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "complementary-services",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true
+    }
+  ]
+}
