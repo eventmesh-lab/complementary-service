@@ -8,6 +8,7 @@ using ComplementaryServices.Infrastructure.Messaging.RabbitMQ;
 using ComplementaryServices.Infrastructure.Persistence;
 using ComplementaryServices.Infrastructure.Notifications;
 using ComplementaryServices.Application.Notifications;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.SignalR;
 using MediatR;
 using System.Reflection;
@@ -18,6 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Database Configuration
+builder.Services.AddDbContext<ComplementaryServiceDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // RabbitMQ Configuration
 builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
@@ -39,7 +44,7 @@ builder.Services.AddMediatR(cfg => {
 builder.Services.AddScoped<IComplementaryServiceAppService, ComplementaryServiceAppService>();
 
 // Registrations (composition root)
-builder.Services.AddSingleton<IComplementaryServiceRepository, ComplementaryServiceRepository>();
+builder.Services.AddScoped<IComplementaryServiceRepository, ComplementaryServiceRepository>();
 builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
 
 var app = builder.Build();
