@@ -1,62 +1,118 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ComplementaryServices.Application.DTOs;
 using ComplementaryServices.Application.Services;
-using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ComplementaryServices.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
+    [Authorize] // Asegurar que solo usuarios autenticados accedan
     public class ComplementaryServicesController : ControllerBase
     {
-        private readonly IComplementaryServiceAppService _service;
+        private readonly IComplementaryServiceAppService _appService;
+        private readonly ILogger<ComplementaryServicesController> _logger;
 
-        public ComplementaryServicesController(IComplementaryServiceAppService service)
+        public ComplementaryServicesController(
+            IComplementaryServiceAppService appService,
+            ILogger<ComplementaryServicesController> logger)
         {
-            _service = service;
+            _appService = appService;
+            _logger = logger;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Guid>> RequestService([FromBody] ServiceRequestDto request, [FromHeader(Name = "X-User-Id")] Guid userId, [FromHeader(Name = "X-Event-Id")] Guid eventId)
+        private Guid GetUserId()
         {
-            var id = await _service.RequestServiceAsync(request, userId, eventId);
-            return Ok(id);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                // Para testing local si no hay JWT, permitir un header
+                var headerId = Request.Headers["X-User-Id"].ToString();
+                if (!string.IsNullOrEmpty(headerId)) return Guid.Parse(headerId);
+                
+                throw new UnauthorizedAccessException("User ID claim not found.");
+            }
+            return Guid.Parse(userIdClaim);
         }
 
-        [HttpGet("user/{userId}")]
-        public async Task<ActionResult<List<ServiceStatusDto>>> GetUserServices(Guid userId, [FromQuery] Guid? reservationId)
+        /// <summary>
+        /// Solicita un nuevo servicio complementario (Transporte, Catering, etc.)
+        /// </summary>
+        [HttpPost("request")]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RequestService([FromBody] ServiceRequestDto request)
         {
-            var services = await _service.GetUserServicesAsync(userId, reservationId);
+            var userId = GetUserId();
+            var serviceId = await _appService.RequestServiceAsync(request, userId);
+            
+            _logger.LogInformation("Service requested: {ServiceId} for Reservation {ReservationId}", 
+                serviceId, request.ReservationId);
+
+            return AcceptedAtAction(nameof(GetServiceStatus), new { serviceId = serviceId }, new { ServiceId = serviceId });
+        }
+
+        /// <summary>
+        /// Obtiene el estado de un servicio específico del usuario
+        /// </summary>
+        [HttpGet("{serviceId}")]
+        [ProducesResponseType(typeof(ServiceStatusDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetServiceStatus(Guid serviceId)
+        {
+            var userId = GetUserId();
+            try
+            {
+                var status = await _appService.GetServiceByIdAsync(serviceId, userId);
+                return Ok(status);
+            }
+            catch (Exception)
+            {
+                return NotFound();
+            }
+        }
+
+        /// <summary>
+        /// Lista todos los servicios del usuario actual
+        /// </summary>
+        [HttpGet("my-services")]
+        public async Task<ActionResult<List<ServiceStatusDto>>> GetMyServices([FromQuery] Guid? reservationId)
+        {
+            var userId = GetUserId();
+            var services = await _appService.GetUserServicesAsync(userId, reservationId);
             return Ok(services);
         }
 
-        [HttpPost("{serviceId}/confirm")]
-        public async Task<ActionResult> ConfirmService(Guid serviceId, [FromBody] ConfirmServiceRequest request)
+        /// <summary>
+        /// Cancela un servicio pendiente
+        /// </summary>
+        [HttpPost("{serviceId}/cancel")]
+        public async Task<IActionResult> CancelService(Guid serviceId)
         {
-            await _service.ConfirmServiceAsync(serviceId, request.ProviderId, request.Price, request.Message, request.EstimatedTime);
-            return NoContent();
+            var userId = GetUserId();
+            var success = await _appService.CancelServiceAsync(serviceId, userId);
+            return success ? NoContent() : BadRequest();
         }
 
-        [HttpPost("{serviceId}/reject")]
-        public async Task<ActionResult> RejectService(Guid serviceId, [FromBody] RejectServiceRequest request)
+        /// <summary>
+        /// Endpoint para administradores/gestores: Servicios por Evento
+        /// </summary>
+        [HttpGet("by-event/{eventId}")]
+        public async Task<ActionResult<List<ServiceStatusDto>>> GetByEvent(Guid eventId)
         {
-            await _service.RejectServiceAsync(serviceId, request.Reason);
-            return NoContent();
+            var services = await _appService.GetServicesByEventAsync(eventId);
+            return Ok(services);
         }
-    }
 
-    public class ConfirmServiceRequest
-    {
-        public string ProviderId { get; set; }
-        public decimal Price { get; set; }
-        public string Message { get; set; }
-        public DateTime? EstimatedTime { get; set; }
-    }
-
-    public class RejectServiceRequest
-    {
-        public string Reason { get; set; }
+        /// <summary>
+        /// Métricas generales del sistema (Dashboard)
+        /// </summary>
+        [HttpGet("metrics")]
+        public async Task<ActionResult<ServiceMetricsDto>> GetMetrics()
+        {
+            var metrics = await _appService.GetMetricsAsync();
+            return Ok(metrics);
+        }
     }
 }

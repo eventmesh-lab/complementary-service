@@ -14,6 +14,7 @@ namespace ComplementaryServices.Domain.Repositories
         Task<List<ComplementaryService>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<List<ComplementaryService>> GetByReservationIdAsync(Guid reservationId, CancellationToken cancellationToken = default);
         Task<List<ComplementaryService>> GetByEventIdAsync(Guid eventId, CancellationToken cancellationToken = default);
+        Task<List<ComplementaryService>> GetAllAsync(CancellationToken cancellationToken = default);
         Task AddAsync(ComplementaryService service, CancellationToken cancellationToken = default);
         Task UpdateAsync(ComplementaryService service, CancellationToken cancellationToken = default);
         Task DeleteAsync(ComplementaryService service, CancellationToken cancellationToken = default);
