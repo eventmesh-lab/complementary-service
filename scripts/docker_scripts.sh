@@ -113,7 +113,7 @@ migrate() {
 # ------------------------------
 seed() {
     echo "🌱 Seeding initial data..."
-    docker-compose exec api dotnet run --project ComplementaryServices.API seed
+    docker-compose exec api dotnet run --project complementary-service.Api seed
     echo "✅ Seeding completed!"
 }
 

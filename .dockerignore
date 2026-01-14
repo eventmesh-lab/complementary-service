@@ -1,0 +1,14 @@
+**/*.swp
+**/*.swo
+**/*.bak
+**/*.tmp
+**/*.user
+**/*.suo
+**/bin
+**/obj
+**/logs
+**/appsettings.Development.json
+.git
+.vs
+.vscode
+docker-compose.override.yml
