@@ -1,33 +1,27 @@
-// Domain/Events/ServiceRequestedDomainEvent.cs
+/ Domain/Events/ServiceCancelledDomainEvent.cs
 using System;
 using ComplementaryServices.Domain.ValueObjects;
 
 namespace ComplementaryServices.Domain.Events
 {
-    public class ServiceRequestedDomainEvent : IDomainEvent
+    public class ServiceCancelledDomainEvent : IDomainEvent
     {
         public Guid ServiceId { get; }
         public Guid ReservationId { get; }
         public Guid UserId { get; }
-        public Guid EventId { get; }
         public ServiceType ServiceType { get; }
-        public string Details { get; }
         public DateTime OccurredOn { get; }
 
-        public ServiceRequestedDomainEvent(
+        public ServiceCancelledDomainEvent(
             Guid serviceId,
             Guid reservationId,
             Guid userId,
-            Guid eventId,
-            ServiceType serviceType,
-            string details)
+            ServiceType serviceType)
         {
             ServiceId = serviceId;
             ReservationId = reservationId;
             UserId = userId;
-            EventId = eventId;
             ServiceType = serviceType;
-            Details = details;
             OccurredOn = DateTime.UtcNow;
         }
     }
