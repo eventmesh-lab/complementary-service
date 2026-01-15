@@ -40,9 +40,6 @@ builder.Services.AddRabbitMQServices(builder.Configuration);
 // SignalR
 builder.Services.AddSignalRServices();
 
-// Keycloak Authentication
-builder.Services.AddKeycloakAuthentication(builder.Configuration);
-
 // Application Service
 builder.Services.AddScoped<IComplementaryServiceAppService, ComplementaryServiceAppService>();
 
@@ -69,9 +66,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowWebApp");
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");
