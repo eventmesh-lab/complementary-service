@@ -29,10 +29,9 @@ start() {
     echo "✅ Services started!"
     echo ""
     echo "📍 Access points:"
-    echo "   - API: http://localhost:5000"
-    echo "   - Swagger: http://localhost:5000/swagger"
+    echo "   - API: http://localhost:5050"
+    echo "   - Swagger: http://localhost:5050/swagger"
     echo "   - RabbitMQ Management: http://localhost:15672 (guest/guest)"
-    echo "   - Keycloak: http://localhost:8080"
 }
 
 # ------------------------------
@@ -189,7 +188,7 @@ health() {
     
     # API Health
     echo "API:"
-    curl -s http://localhost:5000/health | jq . || echo "❌ API not responding"
+    curl -s http://localhost:5050/health | jq . || echo "❌ API not responding"
     echo ""
     
     # PostgreSQL
@@ -200,11 +199,6 @@ health() {
     # RabbitMQ
     echo "RabbitMQ:"
     docker-compose exec rabbitmq rabbitmq-diagnostics ping || echo "❌ RabbitMQ not responding"
-    echo ""
-    
-    # Keycloak
-    echo "Keycloak:"
-    curl -s http://localhost:8080/health/ready || echo "❌ Keycloak not ready"
     echo ""
     
     # Show container status

@@ -3,8 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using ComplementaryServices.Infrastructure.Messaging.RabbitMQ;
 using ComplementaryServices.Infrastructure.Notifications;
 using ComplementaryServices.Domain.Repositories;
@@ -47,50 +45,6 @@ namespace ComplementaryServices.Infrastructure.Extensions
 
             // Notifier
             services.AddScoped<IServiceNotifier, SignalRServiceNotifier>();
-
-            return services;
-        }
-
-        public static IServiceCollection AddKeycloakAuthentication(
-            this IServiceCollection services,
-            IConfiguration configuration)
-        {
-            var keycloakConfig = configuration.GetSection("Keycloak");
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = keycloakConfig["Authority"];
-                    options.Audience = keycloakConfig["Audience"];
-                    options.RequireHttpsMetadata = bool.Parse(keycloakConfig["RequireHttpsMetadata"] ?? "true");
-
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ClockSkew = TimeSpan.FromMinutes(5)
-                    };
-
-                    // Para SignalR: permitir token en query string
-                    options.Events = new JwtBearerEvents
-                    {
-                        OnMessageReceived = context =>
-                        {
-                            var accessToken = context.Request.Query["access_token"];
-                            var path = context.HttpContext.Request.Path;
-
-                            if (!string.IsNullOrEmpty(accessToken) &&
-                                path.StartsWithSegments("/hubs"))
-                            {
-                                context.Token = accessToken;
-                            }
-
-                            return Task.CompletedTask;
-                        }
-                    };
-                });
 
             return services;
         }

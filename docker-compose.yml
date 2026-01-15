@@ -32,64 +32,18 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
       RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit allow_remote_guest_access true"
     ports:
       - "5672:5672"   # AMQP
       - "15672:15672" # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-      - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      # - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
       - ./docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     networks:
       - eventplatform-network
     healthcheck:
       test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  # Keycloak Authentication Server
-  keycloak-db:
-    image: postgres:16-alpine
-    container_name: keycloak-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
-    volumes:
-      - keycloak_db_data:/var/lib/postgresql/data
-    networks:
-      - eventplatform-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:22.0
-    container_name: complementary-services-keycloak
-    restart: unless-stopped
-    command: start-dev --import-realm
-    environment:
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
-      KC_HEALTH_ENABLED: 'true'
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./docker/keycloak/realm-export.json:/opt/keycloak/data/import/realm.json:ro
-    depends_on:
-      keycloak-db:
-        condition: service_healthy
-    networks:
-      - eventplatform-network
-    healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -136,12 +90,7 @@ services:
       RabbitMQ__UserName: ${RABBITMQ_USER:-guest}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:-guest}
       RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-/}
-      
-      # Keycloak
-      Keycloak__Authority: http://keycloak:8080/realms/${KEYCLOAK_REALM:-eventplatform}
-      Keycloak__Audience: ${KEYCLOAK_CLIENT_ID:-complementary-services}
-      Keycloak__RequireHttpsMetadata: 'false'
-      
+
       # MongoDB (Logs)
       MongoDB__ConnectionString: mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-admin}@mongodb:27017
       MongoDB__DatabaseName: complementary-services-logs
@@ -151,16 +100,14 @@ services:
       AllowedOrigins__1: ${CORS_ORIGIN_2:-http://localhost:5173}
       
     ports:
-      - "5000:8080"
+      - "5050:8080"
     volumes:
       - ./logs:/app/logs
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       rabbitmq:
-        condition: service_healthy
-      keycloak:
-        condition: service_healthy
+        condition: service_started
     networks:
       - eventplatform-network
     healthcheck:
@@ -185,7 +132,7 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
     depends_on:
       rabbitmq:
-        condition: service_healthy
+        condition: service_started
     networks:
       - eventplatform-network
 
@@ -195,8 +142,6 @@ volumes:
     name: complementary-services-postgres-data
   rabbitmq_data:
     name: complementary-services-rabbitmq-data
-  keycloak_db_data:
-    name: complementary-services-keycloak-db-data
   mongodb_data:
     name: complementary-services-mongodb-data
 

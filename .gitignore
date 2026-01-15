@@ -105,3 +105,15 @@ csx/
 *.tmp
 *.temp
 
+# Coverage and test results
+coverage.cobertura.xml
+coverage.opencover.xml
+coverage*.xml
+coverage.json
+coverage/
+TestResults/
+*.coverage
+*.coverageinfo
+.coverage
+coverage.*
+
