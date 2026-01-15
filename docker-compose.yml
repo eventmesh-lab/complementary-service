@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-ComplementaryServicesDB}
     ports:
-      - "5432:5432"
+      - "5436:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -34,8 +34,8 @@ services:
       RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit allow_remote_guest_access true"
     ports:
-      - "5672:5672"   # AMQP
-      - "15672:15672" # Management UI
+      - "5675:5672"   # AMQP
+      - "15675:15672" # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
       # - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
@@ -57,7 +57,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-admin}
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongodb_data:/data/db
     networks:
