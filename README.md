@@ -1,74 +1,113 @@
-# Plantilla complementary_service Hexagonal (dotnet)
+# Complementary Services - Microservicio de Servicios Complementarios
 
-Plantilla para generar un microservicio con arquitectura Hexagonal (Ports & Adapters) en .NET.
+## 📋 Descripción
 
-Estructura creada:
+Microservicio que gestiona la solicitud, confirmación y seguimiento de **servicios complementarios** (Transporte, Catering, Merchandising) para eventos en una plataforma de gestión de eventos. Cuando un usuario confirma una reserva para un evento, puede solicitar servicios adicionales que son procesados de forma asíncrona a través de proveedores externos.
 
-- src/
-  - complementary_service.Domain/
-  - complementary_service.Application/
-  - complementary_service.Infrastructure/
-  - complementary_service.Api/
-- tests/
-  - complementary_service.Domain.Tests/
-  - complementary_service.Application.Tests/
-  - complementary_service.Infrastructure.IntegrationTests/
-- .template.config/template.json
+### Problema de Negocio que Resuelve
 
-Cómo usar este repositorio como template
+- **Orquestación de servicios complementarios**: Centraliza las solicitudes de servicios adicionales y coordina con múltiples proveedores externos.
+- **Comunicación asíncrona**: Utiliza mensajería (RabbitMQ) para enviar solicitudes a proveedores externos y recibir confirmaciones o rechazos.
+- **Notificaciones en tiempo real**: Informa a los usuarios del estado de sus servicios mediante SignalR.
+- **Trazabilidad completa**: Registra el ciclo de vida completo de cada solicitud (Requested → Pending → Confirmed/Rejected/Cancelled).
 
-Hay dos formas comunes de usar este repo como plantilla:
+---
 
-1) Usar el repositorio como "GitHub Template" (recomendado si publicas en GitHub):
-   - En GitHub configura el repositorio como "Template repository" (Settings → Template repository) o usa el botón "Use this template" para crear un nuevo repo basado en esta plantilla.
-   - Clona el repo resultante localmente y sigue la sección "Instalación local" abajo para instalar el template en tu máquina.
+## 📚 Tabla de Contenidos
 
-2) Instalación local directa (desarrollo / pruebas):
-   - Clona este repositorio y luego instala la plantilla desde la carpeta del repo:
+- **[Arquitectura](./docs/architecture.md)** - Flujo de datos, dependencias externas y modelo de dominio
+- **[API Reference](./docs/api.md)** - Documentación de endpoints y ejemplos de uso
+- **[Setup & Configuration](./docs/setup.md)** - Guía detallada de instalación y configuración
 
-```bash
-git clone https://github.com/<owner>/complementary_service-hexagonal-template-.git
-cd complementary_service-hexagonal-template-
-# Instalar la plantilla localmente (SDK moderno):
-dotnet new install .
-# Si ya la tienes instalada y quieres forzar la actualización:
-dotnet new install . --force
-```
+---
 
-Ver las plantillas instaladas:
+## 🛠 Stack Tecnológico
 
-```bash
-dotnet new list
-```
+| Categoría | Tecnología |
+|-----------|-----------|
+| **Framework** | .NET 8.0 (ASP.NET Core) |
+| **Arquitectura** | Hexagonal (Ports & Adapters) + DDD |
+| **Base de Datos** | PostgreSQL 16 |
+| **Mensajería** | RabbitMQ 3.12 |
+| **Notificaciones** | SignalR (WebSockets) |
+| **Logs** | MongoDB 7 (opcional) |
+| **Autenticación** | Keycloak (JWT) |
+| **Orquestación** | Docker Compose |
+| **Patrones** | CQRS, Event Sourcing, MediatR |
 
-Generar un nuevo microservicio desde la plantilla
+---
 
-```bash
-# Crea el microservicio (reemplaza "Orders" por el nombre que desees):
-dotnet new complementary_service-hex -n Orders -o ./Orders --framework net8.0
+## 🚀 Quick Start
 
-cd Orders
-dotnet restore
-dotnet build
-```
+### Prerequisitos
+- Docker & Docker Compose
+- .NET 8.0 SDK (solo para desarrollo local sin Docker)
 
-Notas importantes
-- El template usa `complementary_service` como `sourceName`; al generar el proyecto ese token se sustituye por el nombre que pases con `-n`.
-- Los .csproj contienen el token `net8.0` que se sustituye por el valor del parámetro `--framework` (por defecto `net8.0`).
-- Si la plantilla está instalada globalmente y haces cambios locales, reinstálala con `--force`.
-
-Desinstalar la plantilla (opcional)
+### Iniciar el servicio completo
 
 ```bash
-# Si la instalaste desde una carpeta local, puedes desinstalar usando la misma ruta o el identificador usado al instalar.
-dotnet new uninstall /path/to/complementary_service-hexagonal-template-
-# (o) desinstalar por paquete si lo subiste a un feed: dotnet new uninstall <package-or-feed>
+# Clonar el repositorio
+git clone <repository-url>
+cd complementary-service
+
+# Copiar variables de entorno
+cp .env.example .env
+
+# Iniciar todos los servicios con Docker Compose
+docker-compose up -d
+
+# Verificar que los servicios estén corriendo
+docker-compose ps
 ```
 
-Problemas comunes
-- Si ves errores al compilar la API relacionados con Swagger, asegúrate de restaurar paquetes; la plantilla incluye `Swashbuckle.AspNetCore` por defecto.
-- Si el comando `dotnet new complementary_service-hex` no aparece tras instalar, ejecuta `dotnet new install . --force` y verifica con `dotnet new list`.
+### Acceso a Servicios
 
-¿Qué sigue?
-- Puedes solicitar que añada un `.sln` a la plantilla, workflows de CI (GitHub Actions) que verifiquen la generación y build, o parámetros adicionales para incluir EF Core / mensajería a la carta.
+| Servicio | URL | Credenciales |
+|----------|-----|--------------|
+| API (Swagger) | http://localhost:5050/swagger | N/A |
+| API Health | http://localhost:5050/health | N/A |
+| RabbitMQ Management | http://localhost:15675 | guest/guest |
+| PostgreSQL | localhost:5436 | postgres/postgres |
+| MongoDB | localhost:27018 | admin/admin |
+
+### Comandos Útiles
+
+```bash
+# Ver logs de la API
+docker-compose logs -f api
+
+# Detener servicios
+docker-compose down
+
+# Reiniciar un servicio específico
+docker-compose restart api
+
+# Ejecutar scripts de utilidad
+./scripts/docker_scripts.sh start    # Iniciar servicios
+./scripts/docker_scripts.sh stop     # Detener servicios
+./scripts/docker_scripts.sh logs api # Ver logs
+./scripts/docker_scripts.sh health   # Check de salud
+```
+
+---
+
+## 📖 Documentación Adicional
+
+Para información más detallada, consulta:
+
+- **[Arquitectura del Sistema](./docs/architecture.md)** - Cómo funciona internamente el servicio
+- **[Referencia de API](./docs/api.md)** - Contratos de endpoints y ejemplos
+- **[Guía de Configuración](./docs/setup.md)** - Variables de entorno, Docker y scripts
+
+---
+
+## 📝 Licencia
+
+[Especificar licencia del proyecto]
+
+---
+
+## 🤝 Contribuciones
+
+[Especificar pautas de contribución]
 
